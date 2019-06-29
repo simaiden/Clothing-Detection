@@ -1,0 +1,6 @@
+classes= 13
+train  = train/train.txt
+valid  = train/train.txt
+names = df2cfg/df2.names
+backup = backup/
+
