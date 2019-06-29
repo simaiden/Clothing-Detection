@@ -57,8 +57,36 @@ def get_closest_paths(descriptors,clase,n=3):
         final_paths.append(paths_local)
     return final_paths
 
-aa = get_closest_paths(hog_descriptors,0)
-print(aa)
+
+
+def n_paths_cercanos(vector,descriptores,clase,n=3):
+    # Descriptores
+    desc = hog_descriptors[clase][:, 1]
+
+    # Paths
+    paths_descriptors = hog_descriptors[clase][:, 0]
+
+    # Los arreglamos
+    wea_buena = np.zeros((desc.shape[0], desc[0].shape[0]))
+    for i in range(desc.shape[0]):
+        wea_buena[i] = desc[i]
+
+    # Sacamos todas las distancias
+    distancias = todas_distancias(vector, wea_buena)
+
+    # Arreglamos
+    sorted = np.sort(distancias)
+
+    paths_locals = []
+    for i in range(n):
+        index = np.where(distancias == sorted[i+1])[0] #Ignoramos indice 0
+        close_path = paths_descriptors[index]
+        closest_paths.append(close_path)
+        print(close_path)
+        
+    return paths_locals
+
+
 
 
 
