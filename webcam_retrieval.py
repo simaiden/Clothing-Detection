@@ -11,7 +11,8 @@ from torch.autograd import Variable
 
 import matplotlib.pyplot as plt
 import cv2
-
+from closest_paths import n_paths_cercanos, get_hog
+from joblib import dump, load
 
 
 def load_model(params):
@@ -31,7 +32,7 @@ def cv_img_to_tensor(img, dim = (416, 416)):
     pad1, pad2 = int(dim_diff // 2), int(dim_diff - dim_diff // 2)
     pad = (pad1, pad2, 0, 0) if w <= h else (0, 0, pad1, pad2)
     x = F.pad(x, pad=pad, mode='constant', value=127.5) / 255.0
-    x = F.upsample(x, size=(ih, iw), mode='bilinear') # x = (1, 3, 416, 416)
+    x = F.upsample(x, size=(ih, iw), mode='bilinear',align_corners=True) # x = (1, 3, 416, 416)
     return x
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -62,17 +63,17 @@ pca_objs = {}
 hog_descriptors = {}
 i=0
 for clss in classes:
-    pca_objs[i] = np.load('pca_objs/{}{}'.format(clss,'.npy')
-    hog_descriptors[i] = np.load('pca_objs/{}{}'.format(clss,'.npy')
+    pca_objs[i] =  load('pca_objs/{}{}'.format(clss,'.joblib'))
+    hog_descriptors[i] = np.load('hog_descriptors/{}{}'.format(clss,'.npy'), allow_pickle = True)
     i+=1
+
 
 print('Descriptors loaded')
 
 
+cv2.namedWindow('Detections', cv2.WINDOW_NORMAL)
+cv2.namedWindow('Retrieval', cv2.WINDOW_NORMAL)
 
-
-
-np.linalg.norm(face_encodings - face_to_compare, axis=1)
 while(True):
     #img = cv2.imread('weon.jpg')
     _, frame = cap.read()
@@ -85,28 +86,42 @@ while(True):
         input_img= Variable(x.type(Tensor))  
         detections = model(input_img)
         detections = non_max_suppression(detections, params['conf_thres'], params['nms_thres'])
-   
+    closest_img = None
     if detections[0] is not None:
 
-            # Rescale boxes to original image
-                
-            detections = rescale_boxes(detections[0], params['img_size'], img.shape[:2])
-            unique_labels = detections[:, -1].cpu().unique()
-            n_cls_preds = len(unique_labels)
-            #bbox_colors = random.sample(colors, n_cls_preds , seed)
-            bbox_colors = colors[:n_cls_preds]
-            for x1, y1, x2, y2, conf, cls_conf, cls_pred in detections:
+        # Rescale boxes to original image
+            
+        detections = rescale_boxes(detections[0], params['img_size'], img.shape[:2])
+        unique_labels = detections[:, -1].cpu().unique()
+        n_cls_preds = len(unique_labels)
+        #bbox_colors = random.sample(colors, n_cls_preds , seed)
+        bbox_colors = colors[:n_cls_preds]
+        for x1, y1, x2, y2, conf, cls_conf, cls_pred in detections:
 
-                print("\t+ Label: %s, Conf: %.5f" % (classes[int(cls_pred)], cls_conf.item()))
+            print("\t+ Label: %s, Conf: %.5f" % (classes[int(cls_pred)], cls_conf.item()))
 
-                color = bbox_colors[int(np.where(unique_labels == int(cls_pred))[0])]
-                color = tuple(c*255 for c in color)
-               
-                cv2.rectangle(frame,(x1,y1) , (x2,y2) , color,2)
-                font = cv2.FONT_HERSHEY_SIMPLEX
-                cv2.putText(frame,classes[int(cls_pred)] + ' '+str(cls_conf.item()),(x1,y1-15), font, 0.5,color,2,cv2.LINE_AA)
+            color = bbox_colors[int(np.where(unique_labels == int(cls_pred))[0])]
+            color = tuple(c*255 for c in color)
+            color = (color[2],color[1],color[0])
+            cv2.rectangle(frame,(x1,y1) , (x2,y2) , color,3)
+            #print(int(cls_pred))
+            font = cv2.FONT_HERSHEY_SIMPLEX
+            text =  "%s conf: %.3f" % (classes[int(cls_pred)] ,cls_conf.item())
+            cv2.rectangle(frame,(x1-2,y1-25) , (x1 + 8.5*len(text),y1) , color,-1)
+            cv2.putText(frame,text,(x1,y1-5), font, 0.5,(255,255,255),1,cv2.LINE_AA)
+            try:
+                pca = pca_objs[int(cls_pred)]
+                hog_detection = get_hog(frame,(int(x1.item()), int(y1.item()), int(x2.item()), int(y2.item())))
+                hog_pca = pca.transform(hog_detection.reshape(1, -1))
+                closest_img = n_paths_cercanos(hog_pca,hog_descriptors,int(cls_pred))
+            except:
+                continue
+            
              
-    cv2.imshow('asd',frame)
+    cv2.imshow('Detections',frame)
+    if(closest_img is not None):
+        img_retrieval = cv2.imread(closest_img[0])
+        cv2.imshow('Retrieval',img_retrieval)
     if cv2.waitKey(30) & 0xFF == ord('q'):
         break
                 

@@ -1,6 +1,6 @@
 import numpy as np  
 from joblib import dump, load
-
+from scipy.spatial.distance import cdist
 pca_objs = {}
 hog_descriptors = {}
 i=0
@@ -11,5 +11,6 @@ for clss in classes:
     i+=1
 
 print('Descriptors loaded')
-print(hog_descriptors[0][:,1][0])
-np.linalg.norm(hog_descriptors[1][:,1] - np.ones(32), axis=0)
+print(hog_descriptors[0][:,1].shape)
+cdist(hog_descriptors[1][:,1],np.ones(32))
+#np.linalg.norm(hog_descriptors[1][:,1] - np.ones(32), axis=0)

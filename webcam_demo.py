@@ -86,7 +86,7 @@ while(True):
                 color = tuple(c*255 for c in color)
                 color = (color[2],color[1],color[0])
                 cv2.rectangle(frame,(x1,y1) , (x2,y2) , color,3)
-                print(int(cls_pred))
+                #print(int(cls_pred))
                 font = cv2.FONT_HERSHEY_SIMPLEX
                 text =  "%s conf: %.3f" % (classes[int(cls_pred)] ,cls_conf.item())
                 cv2.rectangle(frame,(x1-2,y1-25) , (x1 + 8.5*len(text),y1) , color,-1)

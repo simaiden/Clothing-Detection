@@ -117,16 +117,19 @@ for cls_id in classes_hog_vec_dic:
     
     
     hog_np = np.array(classes_hog_vec_dic[cls_id])
-    print(hog_np.shape)
+    #print(hog_np.shape)
     
     pca = PCA(n_components=32)
-    hog_np = pca.fit_transform(hog_np)   
-    
-   
+    pca.fit(hog_np)  
+    hog_pca = pca.transform(hog_np)   
+    #print(hog_pca.shape)
+    print('Reduce dimension from {} to {}'.format(hog_np.shape,hog_pca.shape))
+    #classes_hog_vec_dic[cls_id][1] = hog_np
     vec_hog_tuple = []
     for i in range(len(hog_np)):
-        vec_hog_tuple.append((imgs_paths[cls_id][i] ,hog_np[i]))
-    #classes_hog_vec_dic[cls_id][1] = hog_np
-    
+        vec_hog_tuple.append((imgs_paths[cls_id][i] ,hog_pca[i]))
+
+  
     np.save('hog_descriptors/'+ classes_id_names[cls_id],vec_hog_tuple) 
+    #np.save('paths_desc_imgs/'+ classes_id_names[cls_id],imgs_paths[cat_id])
     dump(pca, 'pca_objs/'+ classes_id_names[cls_id] + '.joblib')    
