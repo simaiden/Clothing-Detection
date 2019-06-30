@@ -11,7 +11,9 @@ from torch.autograd import Variable
 
 import matplotlib.pyplot as plt
 import cv2
-import sys
+from closest_paths import n_paths_cercanos, get_hog
+from joblib import dump, load
+
 
 def load_model(params):
 # Set up model
@@ -30,27 +32,13 @@ def cv_img_to_tensor(img, dim = (416, 416)):
     pad1, pad2 = int(dim_diff // 2), int(dim_diff - dim_diff // 2)
     pad = (pad1, pad2, 0, 0) if w <= h else (0, 0, pad1, pad2)
     x = F.pad(x, pad=pad, mode='constant', value=127.5) / 255.0
-    x = F.upsample(x, size=(ih, iw), mode='bilinear') # x = (1, 3, 416, 416)
+    x = F.upsample(x, size=(ih, iw), mode='bilinear',align_corners=True) # x = (1, 3, 416, 416)
     return x
-
-def getYoloDetections(img,model,params):
-    x = cv_img_to_tensor(img)
-    x.to(params['device'])   
-
-    with torch.no_grad():
-        input_img= Variable(x.type(Tensor))  
-        detections = model(input_img)
-        detections = non_max_suppression(detections, params['conf_thres'], params['nms_thres'])
-
-    if detections[0] is not None:
-        # Rescale boxes to original image        
-        detections = rescale_boxes(detections[0], params['img_size'], img.shape[:2])
-    return detections
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 params = {   "model_def" : "df2cfg/yolov3-df2.cfg",
-"weights_path" : "weights/yolov3-df2_8000.weights",
+"weights_path" : "weights/yolov3-df2_10000.weights",
 "class_path":"df2cfg/df2.names",
 "conf_thres" : 0.25,
 "nms_thres" :0.4,
@@ -60,18 +48,32 @@ params = {   "model_def" : "df2cfg/yolov3-df2.cfg",
 
 
 classes = load_classes(params['class_path']) 
-#print(classes)
 Tensor = torch.cuda.FloatTensor if torch.cuda.is_available() else torch.FloatTensor
-cmap = plt.get_cmap("tab20")
+cmap = plt.get_cmap("tab20b")
 colors = np.array([cmap(i) for i in np.linspace(0, 1, 20)])
 np.random.shuffle(colors)
 
 model = load_model(params)
 
+cap = cv2.VideoCapture(0)
 
+
+
+pca_objs = {}
+hog_descriptors = {}
+i=0
+for clss in classes:
+    pca_objs[i] =  load('pca_objs/{}{}'.format(clss,'.joblib'))
+    hog_descriptors[i] = np.load('hog_descriptors/{}{}'.format(clss,'.npy'), allow_pickle = True)
+    i+=1
+
+
+print('Descriptors loaded')
 
 
 cv2.namedWindow('Detections', cv2.WINDOW_NORMAL)
+#cv2.namedWindow('Retrieval', cv2.WINDOW_NORMAL)
+
 while(True):
     img_path = input('Ingrese path a imagen: ')
     if img_path=='exit':
@@ -99,6 +101,7 @@ while(True):
         n_cls_preds = len(unique_labels)
         #bbox_colors = random.sample(colors, n_cls_preds , seed)
         bbox_colors = colors[:n_cls_preds]
+        closest_img_paths = []
         for x1, y1, x2, y2, conf, cls_conf, cls_pred in detections:
 
             print("\t+ Label: %s, Conf: %.5f" % (classes[int(cls_pred)], cls_conf.item()))
@@ -112,6 +115,19 @@ while(True):
             text =  "%s conf: %.3f" % (classes[int(cls_pred)] ,cls_conf.item())
             cv2.rectangle(img2,(x1-2,y1-25) , (x1 + 8.5*len(text),y1) , color,-1)
             cv2.putText(img2,text,(x1,y1-5), font, 0.5,(255,255,255),1,cv2.LINE_AA)
+            try:
+                pca = pca_objs[int(cls_pred)]
+                hog_detection = get_hog(img2,(int(x1.item()), int(y1.item()), int(x2.item()), int(y2.item())))
+                hog_pca = pca.transform(hog_detection.reshape(1, -1))
+                closest_img = n_paths_cercanos(hog_pca,hog_descriptors,int(cls_pred),n=1)
+                closest_img_paths.append((closest_img[0], classes[int(cls_pred)]))
+            except:
+                continue
         cv2.imshow('Detections',img2)
-        
-        #cv2.waitKey(0)
+        if(len(closest_img_paths)>=1):
+            for im_path in closest_img_paths:
+                img_retrieval = cv2.imread(im_path[0])
+                cv2.imshow(im_path[1],img_retrieval)
+    input('Presione una tecla para cerrar...')
+    for im_path in closest_img_paths:
+        cv2.destroyWindow(im_path[1])

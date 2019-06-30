@@ -72,7 +72,7 @@ print('Descriptors loaded')
 
 
 cv2.namedWindow('Detections', cv2.WINDOW_NORMAL)
-cv2.namedWindow('Retrieval', cv2.WINDOW_NORMAL)
+#cv2.namedWindow('Retrieval', cv2.WINDOW_NORMAL)
 
 while(True):
     #img = cv2.imread('weon.jpg')
@@ -86,7 +86,7 @@ while(True):
         input_img= Variable(x.type(Tensor))  
         detections = model(input_img)
         detections = non_max_suppression(detections, params['conf_thres'], params['nms_thres'])
-    closest_img = None
+    #closest_img = None
     if detections[0] is not None:
 
         # Rescale boxes to original image
@@ -96,6 +96,7 @@ while(True):
         n_cls_preds = len(unique_labels)
         #bbox_colors = random.sample(colors, n_cls_preds , seed)
         bbox_colors = colors[:n_cls_preds]
+        closest_img_paths = []
         for x1, y1, x2, y2, conf, cls_conf, cls_pred in detections:
 
             print("\t+ Label: %s, Conf: %.5f" % (classes[int(cls_pred)], cls_conf.item()))
@@ -113,16 +114,20 @@ while(True):
                 pca = pca_objs[int(cls_pred)]
                 hog_detection = get_hog(frame,(int(x1.item()), int(y1.item()), int(x2.item()), int(y2.item())))
                 hog_pca = pca.transform(hog_detection.reshape(1, -1))
-                closest_img = n_paths_cercanos(hog_pca,hog_descriptors,int(cls_pred))
+                closest_img = n_paths_cercanos(hog_pca,hog_descriptors,int(cls_pred),n=1)
+                closest_img_paths.append((closest_img[0], classes[int(cls_pred)]))
             except:
                 continue
             
              
+    
+        if(len(closest_img_paths)>=1):
+            for im_path in closest_img_paths:
+                    img_retrieval = cv2.imread(im_path[0])
+                    cv2.imshow(im_path[1],img_retrieval)
     cv2.imshow('Detections',frame)
-    if(closest_img is not None):
-        img_retrieval = cv2.imread(closest_img[0])
-        cv2.imshow('Retrieval',img_retrieval)
     if cv2.waitKey(30) & 0xFF == ord('q'):
         break
+    
                 
         
