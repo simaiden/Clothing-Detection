@@ -3,6 +3,7 @@ from __future__ import division
 from models import *
 from utils.utils import *
 from utils.datasets import *
+from colores import color_imagen
 
 import torch
 from torch.utils.data import DataLoader
@@ -100,6 +101,7 @@ while(True):
         #bbox_colors = random.sample(colors, n_cls_preds , seed)
         bbox_colors = colors[:n_cls_preds]
         for x1, y1, x2, y2, conf, cls_conf, cls_pred in detections:
+            cv2.imwrite("a.jpg",img2[int(y1):int(y2),int(x1):int(x2)])
 
             print("\t+ Label: %s, Conf: %.5f" % (classes[int(cls_pred)], cls_conf.item()))
 
@@ -110,8 +112,16 @@ while(True):
             #print(int(cls_pred))
             font = cv2.FONT_HERSHEY_SIMPLEX
             text =  "%s conf: %.3f" % (classes[int(cls_pred)] ,cls_conf.item())
+
+            cv2.imwrite("a.jpg",img2[int(y1):int(y2),int(x1):int(x2)])
+            img3 = cv2.imread("a.jpg")
+            text_color = color_imagen(img3)
+
+
+            text = text+ " Color: " +text_color
             cv2.rectangle(img2,(x1-2,y1-25) , (x1 + 8.5*len(text),y1) , color,-1)
             cv2.putText(img2,text,(x1,y1-5), font, 0.5,(255,255,255),1,cv2.LINE_AA)
+        cv2.imwrite("pred_" + img_path,img2)
         cv2.imshow('Detections',img2)
         
         #cv2.waitKey(0)
