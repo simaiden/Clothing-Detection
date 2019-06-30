@@ -37,7 +37,7 @@ def cv_img_to_tensor(img, dim = (416, 416)):
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 params = {   "model_def" : "df2cfg/yolov3-df2.cfg",
-"weights_path" : "weights/yolov3-df2_8000.weights",
+"weights_path" : "weights/yolov3-df2_10000.weights",
 "class_path":"df2cfg/df2.names",
 "conf_thres" : 0.25,
 "nms_thres" :0.4,
@@ -55,7 +55,7 @@ np.random.shuffle(colors)
 model = load_model(params)
 
 cap = cv2.VideoCapture(0)
-
+cv2.namedWindow('Detections', cv2.WINDOW_NORMAL)
 while(True):
     #img = cv2.imread('weon.jpg')
     _, frame = cap.read()
@@ -92,7 +92,7 @@ while(True):
                 cv2.rectangle(frame,(x1-2,y1-25) , (x1 + 8.5*len(text),y1) , color,-1)
                 cv2.putText(frame,text,(x1,y1-5), font, 0.5,(255,255,255),1,cv2.LINE_AA)
              
-    cv2.imshow('asd',frame)
+    cv2.imshow('Detections',frame)
     if cv2.waitKey(30) & 0xFF == ord('q'):
         break
                 

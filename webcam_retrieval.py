@@ -38,7 +38,7 @@ def cv_img_to_tensor(img, dim = (416, 416)):
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 params = {   "model_def" : "df2cfg/yolov3-df2.cfg",
-"weights_path" : "weights/yolov3-df2_8000.weights",
+"weights_path" : "weights/yolov3-df2_10000.weights",
 "class_path":"df2cfg/df2.names",
 "conf_thres" : 0.25,
 "nms_thres" :0.4,
