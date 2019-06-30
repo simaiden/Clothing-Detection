@@ -78,7 +78,3 @@ def color_imagen(imagen,n_clusters=3):
     nombre_color = check_color_hsv((l,a,b))
 
     return nombre_color
-
-naruto = cv2.imread("devil.jpg")
-naruto_name = color_imagen(naruto)
-print(naruto_name)
