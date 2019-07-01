@@ -1,5 +1,0 @@
-classes= 9
-train  = img/train.txt
-valid  = img/test.txt
-names = img/dfmen.names
-backup = backup/
