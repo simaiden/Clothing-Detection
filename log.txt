@@ -1,0 +1,20 @@
+detections_count = 478713, unique_truth_count = 83628
+class_id = 0, name = short sleeve top, ap = 79.61%       (TP = 16093, FP = 6519)
+class_id = 1, name = long sleeve top, ap = 56.32%        (TP = 6194, FP = 5859)
+class_id = 2, name = short sleeve outwear, ap = 2.78%            (TP = 0, FP = 0)
+class_id = 3, name = long sleeve outwear, ap = 60.72%            (TP = 1484, FP = 395)
+class_id = 4, name = vest, ap = 56.49%           (TP = 2758, FP = 2285)
+class_id = 5, name = sling, ap = 12.49%          (TP = 63, FP = 124)
+class_id = 6, name = shorts, ap = 71.37%         (TP = 3523, FP = 741)
+class_id = 7, name = trousers, ap = 75.88%       (TP = 5963, FP = 2092)
+class_id = 8, name = skirt, ap = 73.00%          (TP = 6536, FP = 3248)
+class_id = 9, name = short sleeve dress, ap = 53.71%     (TP = 3130, FP = 2695)
+class_id = 10, name = long sleeve dress, ap = 22.64%     (TP = 959, FP = 2869)
+class_id = 11, name = vest dress, ap = 60.74%            (TP = 3639, FP = 2579)
+class_id = 12, name = sling dress, ap = 43.07%           (TP = 1005, FP = 1026)
+
+ for thresh = 0.25, precision = 0.63, recall = 0.61, F1-score = 0.62
+ for thresh = 0.25, TP = 51347, FP = 30432, FN = 32281, average IoU = 51.62 %
+
+ IoU threshold = 50 %, used Area-Under-Curve for each unique Recall
+ mean average precision (mAP@0.50) = 0.514493, or 51.45 %
