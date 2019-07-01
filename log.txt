@@ -1,3 +1,4 @@
+MAP TRAIN
 detections_count = 478713, unique_truth_count = 83628
 class_id = 0, name = short sleeve top, ap = 79.61%       (TP = 16093, FP = 6519)
 class_id = 1, name = long sleeve top, ap = 56.32%        (TP = 6194, FP = 5859)
@@ -18,3 +19,26 @@ class_id = 12, name = sling dress, ap = 43.07%           (TP = 1005, FP = 1026)
 
  IoU threshold = 50 %, used Area-Under-Curve for each unique Recall
  mean average precision (mAP@0.50) = 0.514493, or 51.45 %
+
+
+MAP VALID
+detections_count = 86561, unique_truth_count = 15529
+class_id = 0, name = short sleeve top, ap = 77.79%       (TP = 2606, FP = 1140)
+class_id = 1, name = long sleeve top, ap = 54.76%        (TP = 1186, FP = 942)
+class_id = 2, name = short sleeve outwear, ap = 1.96%            (TP = 0, FP = 0)
+class_id = 3, name = long sleeve outwear, ap = 51.61%            (TP = 192, FP = 61)
+class_id = 4, name = vest, ap = 48.82%           (TP = 402, FP = 478)
+class_id = 5, name = sling, ap = 4.42%           (TP = 5, FP = 29)
+class_id = 6, name = shorts, ap = 64.63%         (TP = 417, FP = 118)
+class_id = 7, name = trousers, ap = 75.66%       (TP = 1392, FP = 549)
+class_id = 8, name = skirt, ap = 70.58%          (TP = 1483, FP = 599)
+class_id = 9, name = short sleeve dress, ap = 45.41%     (TP = 491, FP = 524)
+class_id = 10, name = long sleeve dress, ap = 21.67%     (TP = 194, FP = 556)
+class_id = 11, name = vest dress, ap = 55.03%            (TP = 628, FP = 464)
+class_id = 12, name = sling dress, ap = 25.84%           (TP = 131, FP = 271)
+
+ for thresh = 0.25, precision = 0.61, recall = 0.59, F1-score = 0.60
+ for thresh = 0.25, TP = 9127, FP = 5731, FN = 6402, average IoU = 49.99 %
+
+ IoU threshold = 50 %, used Area-Under-Curve for each unique Recall
+ mean average precision (mAP@0.50) = 0.460153, or 46.02 %

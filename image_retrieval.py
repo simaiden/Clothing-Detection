@@ -128,6 +128,6 @@ while(True):
             for im_path in closest_img_paths:
                 img_retrieval = cv2.imread(im_path[0])
                 cv2.imshow(im_path[1],img_retrieval)
-    input('Presione una tecla para cerrar...')
-    for im_path in closest_img_paths:
-        cv2.destroyWindow(im_path[1])
+        input('Presione una tecla para cerrar...')
+        for im_path in closest_img_paths:
+            cv2.destroyWindow(im_path[1])
