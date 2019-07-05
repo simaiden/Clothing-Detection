@@ -41,7 +41,7 @@ def check_color_hsv(lab):
     #h,s,v = hsv[:,:,0],hsv[:,:,1],hsv[:,:,2]
 
     h, s, v = hsv[0, 0, 0], hsv[0, 0, 1], hsv[0, 0, 2]
-    print(h,s,v)
+    #print(h,s,v)
     if s<25:
         if v<85:
             return 'negra'

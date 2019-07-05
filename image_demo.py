@@ -116,6 +116,9 @@ while(True):
             cv2.rectangle(img2,(x1,y1) , (x2,y2) , color,3)
             cv2.rectangle(img2,(x1-2,y1-25) , (x1 + 8.5*len(text),y1) , color,-1)
             cv2.putText(img2,text,(x1,y1-5), font, 0.5,(255,255,255),1,cv2.LINE_AA)
+
+            #x_f = model.get_feature_map()
+            #print(x_f.shape)
         
         cv2.imshow('Detections',img2)
         

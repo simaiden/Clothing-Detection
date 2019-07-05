@@ -1,8 +1,8 @@
 ## Proyecto final de curso MA5204: Detección, color y retrieval con imágenes de vestimenta.
 
-- Se utiliza como dataset DeepFashion2: https://github.com/switchablenorms/DeepFashion2 
+- YOLOV3 trained with DeepFashion2 dataset: https://github.com/switchablenorms/DeepFashion2 
 
-- Se utiliza framwork Darknet para el entrenamiento del YOLOv3: https://github.com/AlexeyAB/darknet
+- Trained with Darknet framework: https://github.com/AlexeyAB/darknet
 
 - Para la inferencia se utiliza una adaptación de la implementación de YOLOv3 en pytorch: https://github.com/eriklindernoren/PyTorch-YOLOv3.
 
