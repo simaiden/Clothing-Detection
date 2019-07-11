@@ -245,7 +245,24 @@ class Darknet(nn.Module):
         self.feature_map_75 = None
 
     def get_feature_map(self):
-        return self.feature_map_75
+        return self.feature_map_75.clone()
+
+    def crop_feature_map(self , coords):
+        
+        x = self.get_feature_map()
+        ratio = self.img_size/x.size()[2]
+
+        (x1,y1,x2,y2) = (int(coor/ratio) for coor in coords)
+        
+        x = x[:,:,y1:y2, x1:x2]
+        return x
+
+    def get_yolo_feature_vec(self, coords):
+        fmap_cropped = self.crop_feature_map(coords)
+        fmap_cropped = F.adaptive_avg_pool2d(fmap_cropped, (1, 1))
+        return np.squeeze(fmap_cropped.cpu().numpy())
+
+
     def forward(self, x, targets=None):
         img_dim = x.shape[2]
         loss = 0
@@ -253,8 +270,8 @@ class Darknet(nn.Module):
         for i, (module_def, module) in enumerate(zip(self.module_defs, self.module_list)):
             if module_def["type"] in ["convolutional", "upsample", "maxpool"]:
                 x = module(x)
-                if module_def["type"] =="convolutional" and list(x.size())==[1, 512, 13, 13] and i==75:
-                   self.feature_map_75 = x
+                if module_def["type"] =="convolutional" and i==35:
+                   self.feature_map_75 = x.clone()                
             elif module_def["type"] == "route":
                 x = torch.cat([layer_outputs[int(layer_i)] for layer_i in module_def["layers"].split(",")], 1)
             elif module_def["type"] == "shortcut":

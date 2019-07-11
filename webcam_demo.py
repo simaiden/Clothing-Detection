@@ -12,27 +12,7 @@ from torch.autograd import Variable
 import matplotlib.pyplot as plt
 import cv2
 
-
-
-def load_model(params):
-# Set up model
-    model = Darknet(params['model_def'], img_size=params['img_size']).to(params['device'])
-    model.load_darknet_weights(params['weights_path'])
-    model.eval()  # Set in evaluation mode
-    return model
-
-def cv_img_to_tensor(img, dim = (416, 416)):
-    img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
-    x = torch.from_numpy(img.transpose(2, 0, 1))
-    x = x.unsqueeze(0).float()     
-    _, _, h, w = x.size()
-    ih, iw = dim[0],dim[1]
-    dim_diff = np.abs(h - w)
-    pad1, pad2 = int(dim_diff // 2), int(dim_diff - dim_diff // 2)
-    pad = (pad1, pad2, 0, 0) if w <= h else (0, 0, pad1, pad2)
-    x = F.pad(x, pad=pad, mode='constant', value=127.5) / 255.0
-    x = F.upsample(x, size=(ih, iw), mode='bilinear') # x = (1, 3, 416, 416)
-    return x
+from utils2 import *
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
@@ -60,7 +40,7 @@ while(True):
     #img = cv2.imread('weon.jpg')
     _, frame = cap.read()
     img = frame.copy()
-    x = cv_img_to_tensor(img)
+    x , _,_ = cv_img_to_tensor(img)
     x.to(device)   
     
             # Get detections

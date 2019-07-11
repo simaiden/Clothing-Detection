@@ -4,7 +4,7 @@ from joblib import dump, load
 
 def todas_distancias(vector,vectores):
     # Es una matriz con el vector 'vector' repetido en todas las filas
-    d = np.ones((vectores.shape[0],32))
+    d = np.ones((vectores.shape[0],vector.shape[0]))
     d = d*vector
 
     #distancias es un vector con la misma cantidad de filas que 'vectores'
@@ -77,7 +77,7 @@ def n_paths_cercanos(vector,descriptores,clase,n=3):
     #prnt(len(descriptores[clase]))
     #print(descriptores[clase].shape)
     # Los arreglamos
-    wea_buena = np.zeros((desc.shape[0],32))
+    wea_buena = np.zeros((desc.shape[0],vector.shape[0]))
     #print(wea_buena.shape)
     for i in range(desc.shape[0]):
         wea_buena[i] = desc[i]
