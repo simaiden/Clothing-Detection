@@ -1,6 +1,6 @@
 from __future__ import division
 
-from models import *
+from utils.models import *
 from utils.utils import *
 from utils.datasets import *
 
@@ -12,12 +12,12 @@ from torch.autograd import Variable
 import matplotlib.pyplot as plt
 import cv2
 
-from utils2 import *
+from utils import load_model, cv_img_to_tensor
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 params = {   "model_def" : "df2cfg/yolov3-df2.cfg",
-"weights_path" : "weights/yolov3-df2_10000.weights",
+"weights_path" : "weights/yolov3-df2_15000.weights",
 "class_path":"df2cfg/df2.names",
 "conf_thres" : 0.25,
 "nms_thres" :0.4,

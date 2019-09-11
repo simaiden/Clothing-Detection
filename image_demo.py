@@ -1,10 +1,9 @@
 from __future__ import division
 
-from models import *
+from utils.models import *
 from utils.utils import *
 from utils.datasets import *
-from colores import color_imagen
-
+from utils.utils2 import *
 import torch
 from torch.utils.data import DataLoader
 from torchvision import datasets
@@ -14,13 +13,13 @@ import matplotlib.pyplot as plt
 import cv2
 import sys
 
-from utils2 import *
+
 
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 params = {   "model_def" : "df2cfg/yolov3-df2.cfg",
-"weights_path" : "weights/yolov3-df2_8000.weights",
+"weights_path" : "weights/yolov3-df2_15000.weights",
 "class_path":"df2cfg/df2.names",
 "conf_thres" : 0.25,
 "nms_thres" :0.4,
@@ -43,17 +42,17 @@ model = load_model(params)
 
 cv2.namedWindow('Detections', cv2.WINDOW_NORMAL)
 while(True):
-    img_path = input('Ingrese path a imagen: ')
+    img_path = input('Insert path to image: ')
     if img_path=='exit':
         break
 
     img = cv2.imread(img_path)
     if img is None:
-        print('Imagen no encontrada...')
+        print('Image not found...')
         continue
     
     img2= img.copy()     
-    x , pad ,img_padded_size= cv_img_to_tensor(img)
+    x , _ ,_= cv_img_to_tensor(img)
     
     x.to(device)   
 
@@ -81,8 +80,8 @@ while(True):
             
             
             font = cv2.FONT_HERSHEY_SIMPLEX
-            text_color = color_imagen(img2[int(y1):int(y2),int(x1):int(x2)])
-            text =  "%s conf: %.3f Color %s" % (classes[int(cls_pred)] ,cls_conf.item(), text_color)
+            
+            text =  "%s conf: %.3f" % (classes[int(cls_pred)] ,cls_conf.item())
 
             cv2.rectangle(img2,(x1,y1) , (x2,y2) , color,3)
             cv2.rectangle(img2,(x1-2,y1-25) , (x1 + 8.5*len(text),y1) , color,-1)
@@ -91,7 +90,9 @@ while(True):
             #x_f = model.get_yolo_feature_vec( (x1, y1, x2, y2))
             #print(x_f)
         
-       
-        cv2.imshow('Detections',img2)
+    else:
+        print('No detections...') 
+
+    cv2.imshow('Detections',img2)
         
         #cv2.waitKey(0)

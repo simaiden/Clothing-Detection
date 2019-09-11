@@ -1,10 +1,13 @@
-## Proyecto final de curso MA5204: Detección, color y retrieval con imágenes de vestimenta.
+## Clothing detection using YOLOv3 nad DeepFashion2 dataset.
 
 - YOLOV3 trained with DeepFashion2 dataset: https://github.com/switchablenorms/DeepFashion2 
 
 - Trained with Darknet framework: https://github.com/AlexeyAB/darknet
 
-- Para la inferencia se utiliza una adaptación de la implementación de YOLOv3 en pytorch: https://github.com/eriklindernoren/PyTorch-YOLOv3.
+- To do inference use a pytorch implementation of YOLOv3: https://github.com/eriklindernoren/PyTorch-YOLOv3.
 
-- Los pesos entrenados para DeepFashion2 se encuentran en: https://drive.google.com/open?id=1fV1MFRYumwuYzPiB-QNLQidCR5_jAMO8. Se realiza entrenamiento solo con imágenes de usuarios y en un total de 10000 iteraciones.
+- The trained model weights are at: https://drive.google.com/file/d/14-_ctjNtIWLhhLsqwYQzPUNCzh4U1coq/view?usp=sharing. The model was trained with 15000 iterations.
 
+# Coming soon:
+
+- Faster-RCNN and RetinaNet models.
