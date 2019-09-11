@@ -1,0 +1,5 @@
+.git
+yolo/weights/*.weights
+__pycache__
+.vscode
+deepfashion2_dataset
