@@ -1,5 +1,13 @@
 .git
 yolo/weights/*.weights
+faster-retina/models/deepfashion2/*.pth
+faster-retina/models/modanet/*.pth
 __pycache__
 .vscode
 deepfashion2_dataset
+/*.json
+df2predictor.py
+results-googel
+evaluate.py
+output
+coco_json
