@@ -55,13 +55,13 @@ colors = np.array([cmap(i) for i in np.linspace(0, 1, 13)])
 
 
 #Faster RCNN / RetinaNet / Mask RCNN
-#model = 'faster'
-#detectron = Predictor(model=model,dataset= dataset, CATEGORIES = classes)
+model = 'maskrcnn'
+detectron = Predictor(model=model,dataset= dataset, CATEGORIES = classes)
 
 #YOLO
 
-detectron = YOLOv3Predictor(params=yolo_params)
-model = 'yolo'
+#detectron = YOLOv3Predictor(params=yolo_params)
+#model = 'yolo'
 
 
 while(True):
