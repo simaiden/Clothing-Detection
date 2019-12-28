@@ -330,3 +330,9 @@ def build_targets(pred_boxes, pred_cls, target, anchors, ignore_thres):
 
     tconf = obj_mask.float()
     return iou_scores, class_mask, obj_mask, noobj_mask, tx, ty, tw, th, tcls, tconf
+
+
+def closest_distances(query_vector,all_feat_vecs,num=3):
+    dist = np.linalg.norm(query_vector-all_feat_vecs,axis=1)
+    idxs = np.arange(0,dist.shape[0])
+    return idxs[dist.argsort()][:num]

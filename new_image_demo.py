@@ -24,7 +24,7 @@ yolo_df2_params = {   "model_def" : "yolo/df2cfg/yolov3-df2.cfg",
 "device" : device}
 
 yolo_modanet_params = {   "model_def" : "yolo/modanetcfg/yolov3-modanet.cfg",
-"weights_path" : "yolo/weights/yolov3-modanet_15000.weights",
+"weights_path" : "yolo/weights/yolov3-modanet_last.weights",
 "class_path":"yolo/modanetcfg/modanet.names",
 "conf_thres" : 0.25,
 "nms_thres" :0.4,
@@ -33,7 +33,7 @@ yolo_modanet_params = {   "model_def" : "yolo/modanetcfg/yolov3-modanet.cfg",
 
 
 #DATASET
-dataset = 'modanet'
+dataset = 'df2'
 
 
 if dataset == 'df2': #deepfashion2
@@ -47,58 +47,75 @@ if dataset == 'modanet':
 classes = load_classes(yolo_params["class_path"])
 
 #Colors
-cmap = plt.get_cmap("tab20")
-colors = np.array([cmap(i) for i in np.linspace(0, 1, 20)])
-np.random.shuffle(colors)
+cmap = plt.get_cmap("rainbow")
+colors = np.array([cmap(i) for i in np.linspace(0, 1, 13)])
+#np.random.shuffle(colors)
 
 
 
-#Faster RCNN / RetinaNet
+
+#Faster RCNN / RetinaNet / Mask RCNN
 #model = 'faster'
-detectron = Predictor(model='retinanet',dataset= dataset, CATEGORIES = classes)
+#detectron = Predictor(model=model,dataset= dataset, CATEGORIES = classes)
 
 #YOLO
-#yolo = YOLOv3Predictor(params=yolo_params)
+
+detectron = YOLOv3Predictor(params=yolo_params)
+model = 'yolo'
+
+
+while(True):
+    path = input('img path: ')
+    if not os.path.exists(path):
+        print('Img does not exists..')
+        continue
+    img = cv2.imread(path)
+    detections = detectron.get_detections(img)
+    #detections = yolo.get_detections(img)
+    #print(detections)
 
 
 
+    #unique_labels = np.array(list(set([det[-1] for det in detections])))
 
-img = cv2.imread('tests/tipo.jpg')
-detections = detectron.get_detections(img)
-#detections = yolo.get_detections(img)
-#print(detections)
-
+    #n_cls_preds = len(unique_labels)
+    #bbox_colors = colors[:n_cls_preds]
 
 
-unique_labels = np.array(list(set([det[-1] for det in detections])))
+    if len(detections) != 0 :
+        for x1, y1, x2, y2, cls_conf, cls_pred in detections:
+                
 
-n_cls_preds = len(unique_labels)
-bbox_colors = colors[:n_cls_preds]
+                print("\t+ Label: %s, Conf: %.5f" % (classes[int(cls_pred)], cls_conf))           
 
-
-if len(detections) != 0 :
-    for x1, y1, x2, y2, cls_conf, cls_pred in detections:
+                
+                #color = bbox_colors[np.where(unique_labels == cls_pred)[0]][0]
+                color = colors[int(cls_pred)]
+                
+                color = tuple(c*255 for c in color)
+                color = (.7*color[2],.7*color[1],.7*color[0])       
+                    
+                font = cv2.FONT_HERSHEY_SIMPLEX   
             
-
-            print("\t+ Label: %s, Conf: %.5f" % (classes[int(cls_pred)], cls_conf))           
-
             
-            color = bbox_colors[np.where(unique_labels == cls_pred)[0]][0]
-            
-            
-            color = tuple(c*255 for c in color)
-            color = (color[2],color[1],color[0])            
-                   
-            font = cv2.FONT_HERSHEY_SIMPLEX   
-        
-        
-            x1, y1, x2, y2 = int(x1), int(y1), int(x2), int(y2)
-            text =  "%s conf: %.3f" % (classes[int(cls_pred)] ,cls_conf)
+                x1, y1, x2, y2 = int(x1), int(y1), int(x2), int(y2)
+                text =  "%s conf: %.3f" % (classes[int(cls_pred)] ,cls_conf)
 
-            cv2.rectangle(img,(x1,y1) , (x2,y2) , color,3)
-            cv2.rectangle(img,(x1-2,y1-25) , (x1 + int(8.5*len(text)),y1) , color,-1)
-            cv2.putText(img,text,(x1,y1-5), font, 0.5,(255,255,255),1,cv2.LINE_AA)
+                cv2.rectangle(img,(x1,y1) , (x2,y2) , color,3)
 
-            
-cv2.imshow('Detections',img)
-cv2.waitKey(0)
+                y1_rect = y1-25
+                y1_text = y1-5
+
+                if y1_rect<0:
+                    y1_rect = y1+27
+                    y1_text = y1+20
+                cv2.rectangle(img,(x1-2,y1_rect) , (x1 + int(8.5*len(text)),y1) , color,-1)
+                cv2.putText(img,text,(x1,y1_text), font, 0.5,(255,255,255),1,cv2.LINE_AA)
+                
+                
+
+                
+    cv2.imshow('Detections',img)
+    #img_id = path.split('/')[1].split('.')[0]
+    #cv2.imwrite('output/ouput-test_{}_{}_{}.jpg'.format(img_id,model,dataset),img)
+    cv2.waitKey(0)

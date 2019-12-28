@@ -20,6 +20,7 @@ class YOLOv3Predictor(object):
     ):
         self.params = params
         self.model = self.load_model()
+        self.orig_detections = None
         print('Model loaded successfully from {}.'.format(params["weights_path"]))
 
     def get_detections(self,img):
@@ -32,9 +33,9 @@ class YOLOv3Predictor(object):
         input_img= Variable(x.type(Tensor))  
         detections = self.model(input_img)
         detections = non_max_suppression(detections, self.params['conf_thres'], self.params['nms_thres'])
-
+        
         if detections[0] is not None:
-
+            self.orig_detections = detections[0].clone()
             #detections_org = detections[0].clone()
             detections = rescale_boxes(detections[0], self.params['img_size'], img.shape[:2])
             #unique_labels = detections[:, -1].cpu().unique()

@@ -84,7 +84,8 @@ for anno in annos_list:
                 item_dic = data[key]
                 cat_id = item_dic['category_id']
                 bbox = item_dic['bounding_box']
-                bbox = tuple(bb for bb in bbox)
+                bbox[2] = bbox[0] + bbox[2]
+                bbox[3] = bbox[1] + bbox[3]
                 
                 with torch.no_grad():
                     input_img= Variable(x.type(Tensor))  

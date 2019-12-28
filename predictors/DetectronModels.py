@@ -53,7 +53,7 @@ class Predictor(object):
         model,
         CATEGORIES,
         dataset,
-        confidence_threshold=0.7,
+        confidence_threshold=0.5,
         show_mask_heatmaps=False,
         masks_per_dim=2,
         min_image_size=224,
@@ -62,8 +62,10 @@ class Predictor(object):
             config_file = "faster-retina/configs/e2e_faster_rcnn_R_50_FPN_1x_{}_test.yaml".format(dataset)
         if model == 'retinanet':
             config_file = 'faster-retina/configs/retinanet_R-50-FPN_1x-{}.yaml'.format(dataset)
+        
+        if model == 'maskrcnn':
+            config_file = 'faster-retina/configs/e2e_mask_rcnn_R_50_FPN_1x-{}.yaml'.format(dataset)
         cfg.merge_from_file(config_file)
-
         self.cfg = cfg.clone()
         self.CATEGORIES = CATEGORIES
         self.model = build_detection_model(cfg)

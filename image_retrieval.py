@@ -54,7 +54,7 @@ for i,clss in enumerate(classes):
     #pca_objs[i] =  load('pca_objs/{}{}'.format(clss,'.joblib'))
     yolo_descriptors[i] = np.load('yolo_descriptors/{}{}'.format(clss,'.npy'), allow_pickle = True)
    
-
+print(yolo_descriptors)
 
 print('Descriptors loaded')
 
@@ -123,7 +123,8 @@ while(True):
         if(len(closest_img_paths)>=1):
             for im_path in closest_img_paths:
                 img_retrieval = cv2.imread(im_path[0])
-                cv2.imshow(im_path[1],img_retrieval)
+                path = '/media/simon/5AF29F83F29F61D5/DeepFashion2/train' +im_path[1].split('/')[-1]
+                cv2.imshow(path,img_retrieval)
         input('Presione una tecla para cerrar...')
         for im_path in closest_img_paths:
             cv2.destroyWindow(im_path[1])

@@ -13,6 +13,9 @@ import matplotlib.patches as patches
 from .utils import build_targets, to_cpu, non_max_suppression
 from .parse_config import *
 
+
+from torchvision.ops import roi_pool, roi_align
+
 def create_modules(module_defs):
     """
     Constructs module list of layer blocks from module configuration in module_defs
@@ -252,15 +255,31 @@ class Darknet(nn.Module):
         x = self.get_feature_map()
         ratio = self.img_size/x.size()[2]
 
-        (x1,y1,x2,y2) = (int(coor/ratio) for coor in coords)
+        (x1,y1,x2,y2) = (int(coor/ratio) if coor >0 else 0 for coor in coords)
         
         x = x[:,:,y1:y2, x1:x2]
         return x
 
-    def get_yolo_feature_vec(self, coords):
+    def get_yolo_feature_vec2(self, coords):
         fmap_cropped = self.crop_feature_map(coords)
+        #print(fmap_cropped)
         fmap_cropped = F.adaptive_avg_pool2d(fmap_cropped, (1, 1))
-        return np.squeeze(fmap_cropped.cpu().numpy())
+        return np.squeeze(fmap_cropped.cpu().detach().numpy())
+
+    def get_yolo_feature_vec(self, coords):
+        feature_map = self.get_feature_map()
+        ratio = self.img_size/feature_map.size()[2]
+        #coords = (10,10,100,100)
+        coords = torch.cat((torch.Tensor([0]),torch.Tensor(coords))).view(1,5).cuda()
+        #coords = torch.Tensor(coords).view(1,4).cuda()
+        #print(feature_map.shape)
+        #print(coords.shape)
+        #print(coords.shape)
+        with torch.no_grad():
+            roi = roi_align(  feature_map, coords,(5,5) , spatial_scale=1/ratio)
+        #print(roi)
+        vec = F.adaptive_avg_pool2d(roi, (1, 1))
+        return np.squeeze(vec.cpu().detach().numpy())
 
 
     def forward(self, x, targets=None):
@@ -270,7 +289,8 @@ class Darknet(nn.Module):
         for i, (module_def, module) in enumerate(zip(self.module_defs, self.module_list)):
             if module_def["type"] in ["convolutional", "upsample", "maxpool"]:
                 x = module(x)
-                if module_def["type"] =="convolutional" and i==35:
+                #print(x.shape,i)
+                if module_def["type"] =="convolutional" and i==72:
                    self.feature_map_75 = x.clone()                
             elif module_def["type"] == "route":
                 x = torch.cat([layer_outputs[int(layer_i)] for layer_i in module_def["layers"].split(",")], 1)
