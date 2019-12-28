@@ -12,7 +12,7 @@
 
 - YOLOv3 trained with Darknet framework: https://github.com/AlexeyAB/darknet
 
-- TridenNet trained with simpledet frameworkhttps://github.com/TuSimple/simpledet
+- TridenNet trained with simpledet framework https://github.com/TuSimple/simpledet
 
 - To do inference use a pytorch implementation of YOLOv3: https://github.com/eriklindernoren/PyTorch-YOLOv3.
 
