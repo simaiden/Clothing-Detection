@@ -17,7 +17,7 @@ from torch.autograd import Variable
 
 import matplotlib.pyplot as plt
 import cv2
-
+from sklearn.metrics.pairwise import cosine_similarity
 
   
 
@@ -332,7 +332,13 @@ def build_targets(pred_boxes, pred_cls, target, anchors, ignore_thres):
     return iou_scores, class_mask, obj_mask, noobj_mask, tx, ty, tw, th, tcls, tconf
 
 
-def closest_distances(query_vector,all_feat_vecs,num=3):
-    dist = np.linalg.norm(query_vector-all_feat_vecs,axis=1)
+def closest_distances(query_vector,all_feat_vecs,norm='euclidian',num=3):
+    if norm=='euclidian':
+        dist = np.linalg.norm(query_vector-all_feat_vecs,axis=1)
+    if norm =='cosine':
+        dist = 1 - cosine_similarity(query_vector.reshape(1, -1),all_feat_vecs)[0]
     idxs = np.arange(0,dist.shape[0])
     return idxs[dist.argsort()][:num]
+
+
+    

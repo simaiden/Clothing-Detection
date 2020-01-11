@@ -10,6 +10,27 @@ from maskrcnn_benchmark.modeling.roi_heads.mask_head.inference import Masker
 from maskrcnn_benchmark import layers as L
 from maskrcnn_benchmark.utils import cv2_util
 from maskrcnn_benchmark.config import cfg
+from maskrcnn_benchmark.structures.bounding_box import BoxList
+
+
+class FeatureExtractorFromBoxes(torch.nn.Module):
+    """
+    Uses a GeneralizedRCNN model to re-compute the
+    image features and extracts out the roi-aligned/pooled
+    from the ground truth boxes
+    """
+
+    def __init__(self, grcnn_model):
+        super().__init__()
+        self.mdl = grcnn_model
+
+    def forward(self, images, gtboxes):
+        features = self.mdl.backbone(images.tensors)
+        x, result, detector_losses = self.mdl.roi_heads(
+            features, gtboxes, None)
+        return x, result
+
+
 
 class Resize(object):
     def __init__(self, min_size, max_size):
@@ -73,7 +94,7 @@ class Predictor(object):
         self.device = torch.device('cuda')
         self.model.to(self.device)
         self.min_image_size = min_image_size
-
+        self.feat_extractor = FeatureExtractorFromBoxes(self.model)
         save_dir = cfg.OUTPUT_DIR
         checkpointer = DetectronCheckpointer(cfg, self.model, save_dir=save_dir)
         _ = checkpointer.load(cfg.MODEL.WEIGHT)
@@ -91,7 +112,35 @@ class Predictor(object):
         self.show_mask_heatmaps = show_mask_heatmaps
         self.masks_per_dim = masks_per_dim
 
-    
+    def compute_features_from_bbox(self, original_image, gt_boxes):
+        """
+        Extracts features given the ground-truth boxes
+        assume ground-truth boxes are list of boxes in xyxy format
+        Arguments:
+            original_image (np.ndarray): an image as returned by OpenCV
+        Returns:
+            features (BoxList): the ground truth boxes with features
+            accessible using features.get_field()
+        """
+        # Convert gt boxes to BoxList
+        gt_box_list = BoxList(
+            gt_boxes, (original_image.shape[1], original_image.shape[0]), mode='xyxy').to(self.device)
+        # Convert image as in `run_on_opencv_image`
+        image = self.transforms(original_image)
+        # Convert gt boxes for a single image to a list
+        #print(image.size(1))
+        gt_box_list = [gt_box_list.resize((image.size(2), image.size(1)))]
+        image_list = to_image_list(
+            image, self.cfg.DATALOADER.SIZE_DIVISIBILITY)
+        image_list = image_list.to(self.device)
+        with torch.no_grad():
+            features = self.feat_extractor(image_list, gt_box_list)
+        #print(features)
+        # sanity check
+        #assert len(features) == len(gt_box_list[0].bbox)
+        #feats = gt_box_list[0]
+        #feats.add_field('features', features)
+        return features[0].cpu().detach().numpy()[0]
 
     def build_transform(self):
         """
@@ -265,7 +314,7 @@ class Predictor(object):
         labels = top_predictions.get_field('labels').tolist()
         bboxes = top_predictions.bbox.tolist()
         scores = top_predictions.get_field("scores").tolist()
-
+        
         detections = []
         for bbox, score,label in zip(bboxes,scores,labels):
             detection =  bbox +  [score,label - 1]  #we won't have background

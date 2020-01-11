@@ -84,6 +84,7 @@ class PostProcessor(nn.Module):
             if not self.bbox_aug_enabled:  # If bbox aug is enabled, we will do it later
                 boxlist = self.filter_results(boxlist, num_classes)
             results.append(boxlist)
+        #print(len(results))
         return results
 
     def prepare_boxlist(self, boxes, scores, image_shape):
@@ -103,6 +104,9 @@ class PostProcessor(nn.Module):
         scores = scores.reshape(-1)
         boxlist = BoxList(boxes, image_shape, mode="xyxy")
         boxlist.add_field("scores", scores)
+        #@inds = torch.arange(0,scores.shape[0])
+        #boxlist.add_field("orig_inds", inds)
+        #print(scores.shape)
         return boxlist
 
     def filter_results(self, boxlist, num_classes):

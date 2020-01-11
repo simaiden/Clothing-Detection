@@ -1,6 +1,6 @@
 # Copyright (c) Facebook, Inc. and its affiliates. All Rights Reserved.
 import torch
-
+import uuid
 # transpose
 FLIP_LEFT_RIGHT = 0
 FLIP_TOP_BOTTOM = 1
@@ -35,6 +35,7 @@ class BoxList(object):
         self.size = image_size  # (image_width, image_height)
         self.mode = mode
         self.extra_fields = {}
+        #self.bbox_id = uuid.uuid4()
 
     def add_field(self, field, field_data):
         self.extra_fields[field] = field_data

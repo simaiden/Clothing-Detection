@@ -276,7 +276,7 @@ class Darknet(nn.Module):
         #print(coords.shape)
         #print(coords.shape)
         with torch.no_grad():
-            roi = roi_align(  feature_map, coords,(5,5) , spatial_scale=1/ratio)
+            roi = roi_align(  feature_map, coords,(3,3) , spatial_scale=1/ratio)
         #print(roi)
         vec = F.adaptive_avg_pool2d(roi, (1, 1))
         return np.squeeze(vec.cpu().detach().numpy())

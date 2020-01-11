@@ -53,18 +53,18 @@ colors = np.array([cmap(i) for i in np.linspace(0, 1, 13)])
 
 
 #Faster RCNN / RetinaNet / Mask RCNN
-#model = 'faster'
-#detectron = Predictor(model=model,dataset= dataset, CATEGORIES = classes)
+model = 'maskrcnn'
+detectron = Predictor(model=model,dataset= dataset, CATEGORIES = classes)
 
 #YOLO
 
 
-yolo_descriptors = np.load('yolo_df2_shop_descriptors_new2.npy', allow_pickle = True)
+yolo_descriptors = np.load('mask_df2_shop_descriptors.npy', allow_pickle = True)
 shop_descriptors = np.array([vec for vec in yolo_descriptors[:,1]])
 shop_imgs_ids = np.array([id for id in yolo_descriptors[:,0]])
 #print(yolo_descriptors)
 
-detectron = YOLOv3Predictor(params=yolo_params)
+#etectron = YOLOv3Predictor(params=yolo_params)
 
 
 while(True):
@@ -78,15 +78,15 @@ while(True):
     
     closest_img_paths = []
     if len(detections) >0:
-        for x1, y1, x2, y2, _, _, cls_pred in detectron.orig_detections:
+        # for x1, y1, x2, y2, _, _, cls_pred in detectron.orig_detections:
                 
                 
-                yolo_fv = detectron.model.get_yolo_feature_vec( (x1, y1, x2, y2))
-                #print(yolo_fv)
-                closest_img = closest_distances(yolo_fv,shop_descriptors)
-                closest_img = shop_imgs_ids[closest_img]
-                #print(closest_img)
-                closest_img_paths.append((closest_img[0], classes[int(cls_pred)]))
+        #         yolo_fv = detectron.model.get_yolo_feature_vec( (x1, y1, x2, y2))
+        #         #print(yolo_fv)
+        #         closest_img = closest_distances(yolo_fv,shop_descriptors)
+        #         closest_img = shop_imgs_ids[closest_img]
+        #         #print(closest_img)
+        #         closest_img_paths.append((closest_img[0], classes[int(cls_pred)]))
 
         
         for x1, y1, x2, y2, cls_conf, cls_pred in detections:
@@ -113,7 +113,12 @@ while(True):
                 cv2.putText(img,text,(x1,y1_text), font, 0.5,(255,255,255),1,cv2.LINE_AA)
                     
 
-        
+                
+                feat_vec =detectron.compute_features_from_bbox(img,[(x1, y1, x2, y2)])
+                closest_img = closest_distances(feat_vec,shop_descriptors,norm='cosine')
+                closest_img = shop_imgs_ids[closest_img]
+                #print(closest_img)
+                closest_img_paths.append((closest_img[0], classes[int(cls_pred)]))
         if(len(closest_img_paths)>=1):
                 print(closest_img_paths)
                 for im_path in closest_img_paths:

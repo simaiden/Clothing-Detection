@@ -32,3 +32,6 @@ retrieval
 Deepfashion2Val
 *.eps
 grafico_clases.py
+mask_df2_shop_descriptors_retrieval.npy
+mask_df2_shop_descriptors.npy
+ola.py

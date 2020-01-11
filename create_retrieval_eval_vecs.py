@@ -34,7 +34,7 @@ detector = YOLOv3Predictor(params=yolo_params)
 
 
 feat_vecs = []
-feat_vecs_test = []
+
 annos_list = glob.glob('Deepfashion2Val/annos/*.json')
 j=0
 for anno in tqdm(annos_list):
@@ -49,42 +49,36 @@ for anno in tqdm(annos_list):
         del data['pair_id']
         del data['source']
 
-        for item in data:
-            anno = data[item]
+        
             
             
-            bbox = anno['bounding_box']
-            bbox = tuple(bb for bb in bbox)
-            
-            
-            img  = cv2.imread(path)
-            #detections = detector.get_detections(img,original=True)
+        img  = cv2.imread(path)
+        #detections = detector.get_detections(img,original=True)
 
-            _ , pad , img_padded_size= detector.cv_img_to_tensor(img)    
+        _ , pad , img_padded_size= detector.cv_img_to_tensor(img)    
 
 
-            detections = detector.get_detections(img)
+        detections = detector.get_detections(img)
 
-            bbox = detector.orig_coords_to_yolo(pad,img_padded_size,bbox)
-            yolo_feat_vec = detector.model.get_yolo_feature_vec(bbox)
-            #print(yolo_feat_vec)
-            #print(yolo_feat_vec.shape)
-            feat_vecs_test.append((image_id,yolo_feat_vec))
+        
+        #print(yolo_feat_vec)
+        #print(yolo_feat_vec.shape)
+        
 
-            if len(detections) >0:
-                for x1, y1, x2, y2, _, _, cls_pred in detector.orig_detections:
-                    
-                    bbox = (x1, y1, x2, y2)
-                    yolo_fv = detector.model.get_yolo_feature_vec(bbox)
-                    print(yolo_fv)
-                    #closest_img = closest_distances(yolo_fv,shop_descriptors)
-                    #closest_img = shop_imgs_ids[closest_img]
-                    
-                    #closest_img_paths.append((closest_img[0], classes[int(cls_pred)]))
-                    feat_vecs.append((image_id,yolo_fv,bbox))
+        if len(detections) >0:
+            for x1, y1, x2, y2, _, _, cls_pred in detector.orig_detections:
+                
+                bbox = (x1, y1, x2, y2)
+                yolo_fv = detector.model.get_yolo_feature_vec(bbox)
+                #print(yolo_fv.shape)
+                #closest_img = closest_distances(yolo_fv,shop_descriptors)
+                #closest_img = shop_imgs_ids[closest_img]
+                
+                #closest_img_paths.append((closest_img[0], classes[int(cls_pred)]))
+                feat_vecs.append((image_id,yolo_fv,bbox))
     else:
         a=1
         #copy(path,'Deepfashion2Val/users_imgs/{}.jpg'.format(image_id))
 
 np.save( 'yolo_df2_shop_descriptors_retrieval_test_4', feat_vecs) 
-np.save( 'yolo_df2_shop_descriptors_new4', feat_vecs_test) 
+#np.save( 'yolo_df2_shop_descriptors_new4', feat_vecs_test) 
